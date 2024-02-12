@@ -1,12 +1,8 @@
-from enum import Enum
-from typing import Optional
-import math
-
-import pygame
 import tkinter as tk
-
+import pygame
 
 from spherement.workspace import Workspace
+
 
 RESOLUTION = (1280, 720)
 MARGIN = 20

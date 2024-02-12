@@ -27,9 +27,8 @@ class Button:
         )
 
     def handle_event(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if self.is_inside(*event.pos):
-                print("Button clicked!")
+        if event.type == pygame.MOUSEBUTTONDOWN and self.is_inside(*event.pos):
+            print("Button clicked!")
 
     def update(self, events: list[pygame.event.Event]):
         for event in events:
