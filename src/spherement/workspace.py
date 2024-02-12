@@ -255,6 +255,7 @@ class Workspace:
     image_pos: DrawPoint
     image_offset: Point2d
     scale: float
+    circle_diff: float
     view_point: Point2d
     points: list[DrawPoint]
     stage: Stage
@@ -265,11 +266,12 @@ class Workspace:
         """
         self.area = DrawBox(top, left, width, height)
         self.image = None
-        self.scale = 1
+        self.scale = 1.0
         self.view_point = Point2d(0, 0)
         self.image_offset = Point2d(0, 0)
         self.points = []
         self.stage = Stage.ADJUSTMENT
+        self.circle_diff = 0.0
 
     def set_image(self, image: pygame.Surface):
         """Set the image of the workspace"""
@@ -329,14 +331,14 @@ class Workspace:
 
         if self.image:
             surf.blit(
-                pygame.transform.scale_by(self.image, self.scale),
+                pygame.transform.scale_by(self.image, self.scale+self.circle_diff),
                 Point2d.add_points(
-                    [self.scale * self.image_offset, self.pov()]
+                    [(self.scale + self.circle_diff) * self.image_offset, self.pov()]
                 ).get_indexes(),
             )
 
         circle_radius = self.area.radius * (
-            self.scale if self.stage is Stage.MEASUREMENT else 1.0
+            (self.scale) if self.stage is Stage.MEASUREMENT else 1.0
         )
         pygame.draw.circle(
             surf,
@@ -356,6 +358,8 @@ class Workspace:
                 5,
             )
 
+        self.draw_points_and_distances(surf)
+
         screen.blit(surf, (self.area.left, self.area.top))
 
     def change_scale(self, delta: float):
@@ -364,12 +368,10 @@ class Workspace:
         the size of the image. Also change the view point to keep the same point
         in the center of the screen.
         """
-        if not self.image:
-            return
-
         p = DrawPoint.from_point_2d(self.view_point)
         self.view_point = Point2d.from_draw_point(p * delta)
         self.scale *= delta
+        self.circle_diff *= delta
 
     def move_view(self):
         """
@@ -435,28 +437,29 @@ class Workspace:
         axis and the scale of the image is changed.
         """
         keys = pygame.key.get_pressed()
+
+        multiplier = 1.0
+        if keys[pygame.K_LSHIFT]:
+            multiplier = 5.0
+
         if keys[pygame.K_UP]:
-            self.image_offset.y += 1
+            self.image_offset.y += 1 * multiplier
         if keys[pygame.K_DOWN]:
-            self.image_offset.y -= 1
+            self.image_offset.y -= 1 * multiplier
         if keys[pygame.K_LEFT]:
-            self.image_offset.x += 1
+            self.image_offset.x += 1 * multiplier
         if keys[pygame.K_RIGHT]:
-            self.image_offset.x -= 1
+            self.image_offset.x -= 1 * multiplier
         if keys[pygame.K_MINUS]:
-            self.change_scale(0.99)
+            self.change_scale(0.99 ** multiplier)
         if keys[pygame.K_PLUS]:
-            self.change_scale(1.01)
+            self.change_scale(1.01 ** multiplier)
 
         for event in events:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
-                if self.image is not None:
-                    self.stage = Stage.MEASUREMENT
-                    self.image = pygame.transform.scale_by(self.image, self.scale)
-                    h, w = self.image.get_size()
-                    self.image_offset.x += (h / self.scale - h) / 2
-                    self.image_offset.y += (w / self.scale - w) / 2
-                    self.scale = 1.0
+                self.stage = Stage.MEASUREMENT
+                self.circle_diff = self.scale - 1.0
+                self.scale = 1.0
 
     def update(self, events: list[pygame.event.Event]):
         """
