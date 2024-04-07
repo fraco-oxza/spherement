@@ -7,17 +7,10 @@ from enum import Enum
 
 import math
 from typing import Optional
-from tkinter import filedialog
 
 import pygame
 
 
-def ask_file() -> Optional[str]:
-    """
-    Open a file dialog and return the path of the selected file
-    """
-    file_path = filedialog.askopenfilename()
-    return file_path
 
 
 class DrawPoint:
@@ -396,10 +389,6 @@ class Workspace:
             self.change_scale(0.99**multiplier)
         if keys[pygame.K_PLUS]:
             self.change_scale(1.01**multiplier)
-        if keys[pygame.K_SPACE]:
-            image_path = ask_file()
-            if image_path:
-                self.set_image(pygame.image.load(image_path))
 
     def add_point(self, events: list[pygame.event.Event]):
         """
@@ -465,10 +454,6 @@ class Workspace:
         """
         Update the workspace. The workspace is updated depending on the stage
         """
-        if not self.image:
-            file = ask_file()
-            if file is not None:
-                self.set_image(pygame.image.load(file))
         if self.stage == Stage.ADJUSTMENT:
             self.adjust_view(events)
         elif self.stage == Stage.MEASUREMENT:

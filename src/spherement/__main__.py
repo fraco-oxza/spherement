@@ -1,4 +1,5 @@
-import tkinter as tk
+import sys
+
 import pygame
 
 from spherement.workspace import Workspace
@@ -10,8 +11,6 @@ WORKSPACE_SIZE = (
     int(2 * (RESOLUTION[0] / 3) - 2 * MARGIN),
     int(RESOLUTION[1] - 2 * MARGIN),
 )
-
-tk.Tk().withdraw()
 
 
 class Shperement:
@@ -27,17 +26,18 @@ class Shperement:
         if any(event.type == pygame.QUIT for event in self.events):
             self.running = False
 
+    def set_image(self, image):
+        image = pygame.image.load(image)
+        self.workspace.set_image(image)
+
     def draw(self):
         self.screen.fill("#232323")
         self.workspace.draw(self.screen)
 
-    def update(self):
-        self.workspace.update(self.events)
-
     def run(self) -> None:
         while self.running:
             self.process_events()
-            self.update()
+            self.workspace.update(self.events)
             self.draw()
 
             pygame.display.flip()
@@ -46,4 +46,7 @@ class Shperement:
 
 if __name__ == "__main__":
     pygame.init()
-    Shperement().run()
+
+    spherement = Shperement()
+    spherement.set_image(sys.argv[1])
+    spherement.run()
