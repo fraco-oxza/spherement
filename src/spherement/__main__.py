@@ -5,21 +5,18 @@ import pygame
 from spherement.workspace import Workspace
 
 
-RESOLUTION = (1280, 720)
+RESOLUTION = 800
 MARGIN = 20
-WORKSPACE_SIZE = (
-    int(2 * (RESOLUTION[0] / 3) - 2 * MARGIN),
-    int(RESOLUTION[1] - 2 * MARGIN),
-)
+WORKSPACE_SIZE = RESOLUTION - 2 * MARGIN
 
 
 class Shperement:
     def __init__(self):
-        self.screen = pygame.display.set_mode(RESOLUTION)
+        self.screen = pygame.display.set_mode((RESOLUTION, RESOLUTION))
         self.clock = pygame.time.Clock()
         self.running = True
         self.events = []
-        self.workspace = Workspace(MARGIN, MARGIN, *WORKSPACE_SIZE)
+        self.workspace = Workspace(MARGIN, WORKSPACE_SIZE)
 
     def process_events(self):
         self.events = pygame.event.get()

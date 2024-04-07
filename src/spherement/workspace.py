@@ -2,6 +2,7 @@
 This module contains the classes to represent the workspace of the application.
 The workspace is the area where the image is shown and the points are added.
 """
+
 from __future__ import annotations
 from enum import Enum
 
@@ -9,8 +10,6 @@ import math
 from typing import Optional
 
 import pygame
-
-
 
 
 class DrawPoint:
@@ -234,7 +233,7 @@ class DrawBox:
     def get_surface(self) -> pygame.Surface:
         """Return a surface with the size of the box"""
         surf = pygame.Surface((self.width, self.height))
-        surf.fill("#434343")
+        surf.fill("#282828")
         return surf
 
 
@@ -253,11 +252,11 @@ class Workspace:
     points: list[DrawPoint]
     stage: Stage
 
-    def __init__(self, top: int, left: int, width: int, height: int):
+    def __init__(self, padding: int, side: int):
         """
         Create a new Workspace
         """
-        self.area = DrawBox(top, left, width, height)
+        self.area = DrawBox(padding, padding, side, side)
         self.image = None
         self.scale = 1.0
         self.view_point = Point2d(0, 0)
@@ -286,7 +285,7 @@ class Workspace:
 
             pygame.draw.line(
                 surf,
-                "#FF0000",
+                "#fb4934",
                 Point2d.add_points(
                     [self.pov(), Point2d.from_draw_point(self.scale * p1)]
                 ).get_indexes(),
@@ -303,8 +302,8 @@ class Workspace:
             p2_3d = Point3d(p2_x, p2_y, math.sqrt(1 - p2_x**2 - p2_y**2))
 
             angle = math.degrees(p1_3d.get_angle_to(p2_3d))
-            font = pygame.font.Font(None, 24)
-            text = font.render(f"{angle:.2f}", True, "#FF0000", "#ffff00")
+            font = pygame.font.Font("fonts/Roboto-Regular.ttf", 20)
+            text = font.render(f" {angle:.2f}º ", True, "#ebdbb2", "#141617")
 
             # write in the center of the line
             surf.blit(
@@ -313,7 +312,7 @@ class Workspace:
                     [
                         self.pov(),
                         Point2d.from_draw_point((p1 + p2) * 0.5 * self.scale),
-                        Point2d(-10, -10),
+                        Point2d(*text.get_size()) * -0.5,
                     ]
                 ).get_indexes(),
             )
@@ -324,7 +323,7 @@ class Workspace:
 
         if self.image:
             surf.blit(
-                pygame.transform.scale_by(self.image, self.scale+self.circle_diff),
+                pygame.transform.scale_by(self.image, self.scale + self.circle_diff),
                 Point2d.add_points(
                     [(self.scale + self.circle_diff) * self.image_offset, self.pov()]
                 ).get_indexes(),
@@ -335,7 +334,7 @@ class Workspace:
         )
         pygame.draw.circle(
             surf,
-            "#00FF00",
+            "#b8bb26",
             self.pov().get_indexes(),
             circle_radius,
             1,
@@ -344,7 +343,7 @@ class Workspace:
         for draw_point in self.points:
             pygame.draw.circle(
                 surf,
-                "#FF0000",
+                "#fb4934",
                 Point2d.add_points(
                     [self.pov(), Point2d.from_draw_point(self.scale * draw_point)]
                 ).get_indexes(),
@@ -440,9 +439,9 @@ class Workspace:
         if keys[pygame.K_RIGHT]:
             self.image_offset.x -= 1 * multiplier
         if keys[pygame.K_MINUS]:
-            self.change_scale(0.99 ** multiplier)
+            self.change_scale(0.99**multiplier)
         if keys[pygame.K_PLUS]:
-            self.change_scale(1.01 ** multiplier)
+            self.change_scale(1.01**multiplier)
 
         for event in events:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
